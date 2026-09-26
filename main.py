@@ -1,11 +1,20 @@
-from machine import Pin, I2C,SoftI2C
+from machine import Pin, I2C,SoftI2C, PWM
 from utime import sleep
 import time
+import struct
 #import motores
+import sonido
 import comunicacionWiFi
 import interfaz_grafica
 
 from ssd1306 import SSD1306_I2C
+import os
+print(os.listdir())
+
+AUDIO_PIN = 15
+
+pwm = PWM(Pin(AUDIO_PIN))
+
 
 SSID = "Robot-PicoW"
 PASSWORD = "12345678"
@@ -36,6 +45,9 @@ while True:
     
     print("Nueva version 6")
     interfaz_grafica.prueba_ojos(display)
+
+
+    sonido.reproducir_wav("maullido-gato.wav")
 
     flag_com = comunicacionWiFi.actualizar()
     contador   = flag_com
