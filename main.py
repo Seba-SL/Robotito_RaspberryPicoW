@@ -5,7 +5,6 @@ import os
 import motores
 import comunicacionWiFi
 import Interfaz_grafica
-import ojos_robot
 
 from ssd1306 import SSD1306_I2C
 
@@ -35,8 +34,6 @@ display = SSD1306_I2C(128, 64, i2c, addr=0x3C)
 ultima_expresion = None
 
 
-
-
 # ============================================================
 # INICIAR ROBOT
 # ============================================================
@@ -47,31 +44,20 @@ led = Pin("LED", Pin.OUT)
 led.on()
 
 
-print("Robot iniciado")
-print("Conectate a la red:", SSID)
-print("Abrir: http://192.168.4.1")
-
 # ============================================================
 # BUCLE PRINCIPAL
 # ============================================================
-
-
 
 while True:
 
     # Atender solicitudes del celular
     comunicacionWiFi.actualizar()
 
-
     modo = comunicacionWiFi.obtener_modo_ojos()
 
     Interfaz_grafica.elegir_modo(display, modo ,ultima_expresion)
-
-    # Dibujar los ojos sin pausas largas
-    Interfaz_grafica.ojos_espera(display)
-
-    # Indicador de funcionamiento
+   # Indicador de funcionamiento
     led.toggle()
 
-    time.sleep_ms(10)
+    time.sleep_ms(1)
 
