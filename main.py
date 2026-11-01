@@ -1,61 +1,77 @@
-from machine import Pin, I2C,SoftI2C, PWM
-from utime import sleep
+
+from machine import Pin, I2C, PWM
 import time
-import struct
-#import motores
-import sonido
+import os
+import motores
 import comunicacionWiFi
-import interfaz_grafica
+import Interfaz_grafica
+import ojos_robot
 
 from ssd1306 import SSD1306_I2C
-import os
-print(os.listdir())
 
-AUDIO_PIN = 15
-
-pwm = PWM(Pin(AUDIO_PIN))
-
+# ============================================================
+# CONFIGURACION
+# ============================================================
 
 SSID = "Robot-PicoW"
 PASSWORD = "12345678"
-scl = Pin(1)
-sda = Pin(0)
 
-comunicacionWiFi.iniciar_red(SSID,PASSWORD)
+# ============================================================
+# INICIAR WIFI
+# ============================================================
 
-#Iniciar display oled
-i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=1000000)
-print(i2c.scan())
+comunicacionWiFi.iniciar_red(SSID, PASSWORD)
+# ============================================================
+# INICIAR OLED
+# ============================================================
+
+i2c = I2C(0,scl=Pin(1),sda=Pin(0),freq=400000)
+
+print("Dispositivos I2C:", i2c.scan())
+
 display = SSD1306_I2C(128, 64, i2c, addr=0x3C)
 
-#print(dir(ojos_robot))#Para ver si se actualizo la libreria de los ojos.
-#print(dir(motores))#idem
-print(dir(interfaz_grafica))
 
-pin = Pin("LED", Pin.OUT)
+ultima_expresion = None
 
-print("LED comienza...")
+
 
 
 # ============================================================
-# Iteración
+# INICIAR ROBOT
 # ============================================================
+
+motores.parar()
+
+led = Pin("LED", Pin.OUT)
+led.on()
+
+
+print("Robot iniciado")
+print("Conectate a la red:", SSID)
+print("Abrir: http://192.168.4.1")
+
+# ============================================================
+# BUCLE PRINCIPAL
+# ============================================================
+
+
 
 while True:
-    
-    print("Nueva version 6")
-    interfaz_grafica.prueba_ojos(display)
+
+    # Atender solicitudes del celular
+    comunicacionWiFi.actualizar()
 
 
-    sonido.reproducir_wav("maullido-gato.wav")
+    modo = comunicacionWiFi.obtener_modo_ojos()
 
-    flag_com = comunicacionWiFi.actualizar()
-    contador   = flag_com
+    Interfaz_grafica.elegir_modo(display, modo ,ultima_expresion)
 
-    
-    if contador == 3:
-        print(" ¡ Alguien se conectó !!!")
-       # interfaz_grafica.mensaje(display)
-        contador =  flag_com + 1
-    
-    time.sleep_ms(100)
+    # Dibujar los ojos sin pausas largas
+    Interfaz_grafica.ojos_espera(display)
+
+    # Indicador de funcionamiento
+    led.toggle()
+
+    time.sleep_ms(10)
+

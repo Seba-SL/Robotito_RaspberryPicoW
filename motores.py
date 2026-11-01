@@ -1,53 +1,37 @@
 from machine import Pin, PWM
 import time
 
+
+# ============================================================
+# CONFIGURACIÓN DE PINES
+# ============================================================
+
 A1 = PWM(Pin(10))
 A2 = PWM(Pin(11))
 
-B1 = PWM(Pin(12))
-B2 = PWM(Pin(13))
-
-# Frecuencia PWM
-A1.freq(1000)
-A2.freq(1000)
-B1.freq(1000)
-B2.freq(1000)
+B1 = PWM(Pin(8))
+B2 = PWM(Pin(9))
 
 
-def prueba():
+# Frecuencia del PWM
+FRECUENCIA = 1000  # Hz
 
-    def pwm(porcentaje):
-        return int(porcentaje * 65535 / 100)
-
-    # Todo apagado
-    A1.duty_u16(0)
-    A2.duty_u16(0)
-    B1.duty_u16(0)
-    B2.duty_u16(0)
+A1.freq(FRECUENCIA)
+A2.freq(FRECUENCIA)
+B1.freq(FRECUENCIA)
+B2.freq(FRECUENCIA)
 
 
-    print("motor A")
+# ============================================================
+# CONTROL DE VELOCIDAD
+# ============================================================
 
-    # MOTOR A
-    A1.duty_u16(pwm(60))
-    A2.duty_u16(0)
-
-
-    print("motor B")
-    # MOTOR B
-    B1.duty_u16(pwm(60))
-    B2.duty_u16(0)
-
-    time.sleep(3)
-
-    # Parar
-    A1.duty_u16(0)
-    A2.duty_u16(0)
-    B1.duty_u16(0)
-B2.duty_u16(0)
-
-def velocidad(porcentaje):
-    return int(porcentaje * 65535 / 100)
+def duty(velocidad):
+    """
+    Convierte velocidad de 0-100 % a duty de 0-65535.
+    """
+    velocidad = max(0, min(100, velocidad))
+    return int(velocidad * 65535 / 100)
 
 
 def parar():
@@ -57,41 +41,94 @@ def parar():
     B2.duty_u16(0)
 
 
-def adelante(vel):
-    d = velocidad(vel)
+# ============================================================
+# MOVIMIENTO
+# ============================================================
+def adelante(velocidad=100):
+    d = duty(velocidad)
+    
+    A1.duty_u16(0)
+    A2.duty_u16(d)
+    
+    B1.duty_u16(0)
+    B2.duty_u16(d)
+    
 
+def atras(velocidad=100):
+    d = duty(velocidad)
+        
     A1.duty_u16(d)
     A2.duty_u16(0)
-
+        
     B1.duty_u16(d)
     B2.duty_u16(0)
 
 
-def atras(vel):
-    d = velocidad(vel)
+
+def izquierda(velocidad=20):
+
+    d = duty(velocidad)
 
     A1.duty_u16(0)
-    A2.duty_u16(d)
+    A2.duty_u16(0)
 
     B1.duty_u16(0)
     B2.duty_u16(d)
 
 
-def izquierda(vel=60):
-    # Rueda izquierda más lenta
-    A1.duty_u16(velocidad(30))
-    A2.duty_u16(0)
 
-    # Rueda derecha más rápida
-    B1.duty_u16(velocidad(vel))
+def derecha(velocidad=20):
+
+    d = duty(velocidad)
+
+    A1.duty_u16(0)
+    A2.duty_u16(d)
+
+    B1.duty_u16(0)
     B2.duty_u16(0)
 
 
-def derecha(vel=60):
-    # Rueda izquierda más rápida
-    A1.duty_u16(velocidad(vel))
-    A2.duty_u16(0)
 
-    # Rueda derecha más lenta
-    B1.duty_u16(0)
-    B2.duty_u16(velocidad(30))
+# ============================================================
+# PRUEBA DE MOTORES
+# ============================================================
+
+def prueba():
+
+    print("=== PRUEBA DE MOTORES ===")
+
+    print("Adelante 50 %")
+    adelante(50)
+    time.sleep(10)
+
+    parar()
+    time.sleep(10)
+
+    print("atras 100 %")
+    atras(100)
+    time.sleep(5)
+
+    parar()
+    time.sleep(10)
+
+    print("Adelante 100 %")
+    adelante(100)
+    time.sleep(5)
+
+    parar()
+    time.sleep(10)
+
+    print("Atrás 10 %")
+    atras(60)
+    time.sleep(10)
+
+    parar()
+
+    print("=== FIN DE PRUEBA ===")
+
+
+# ============================================================
+# PROGRAMA PRINCIPAL
+# ============================================================
+
+# prueba()

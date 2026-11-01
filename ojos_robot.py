@@ -222,3 +222,4 @@ def ojos_corazon(display):
     display.line(79, 42, 83, 38, 1)
 
     display.show()
+
